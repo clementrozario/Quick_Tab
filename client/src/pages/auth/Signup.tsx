@@ -6,7 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 const signupSchema = z.object({
     email: z.string().email(),
-    password: z.string().min(7, "password should be atleast 7 characters")
+    password: z.string().min(7, "password should be atleast 7 characters"),
+    name:z.string().trim().min(1,'Name is required')
 })
 
 type SignupFormData = z.infer<typeof signupSchema>
@@ -32,6 +33,16 @@ export const Signup = () => {
 
                 <form onSubmit={handleSubmit(onSubmit)} noValidate>
                     <div className="mt-8">
+                        <label htmlFor="name" className="text-sm font-medium">Name</label>
+                        <input
+                            type="text"
+                            className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
+                            {...register('name')}
+                        />
+                        {errors.name && <p className="text-sm text-red-500 mt-1">{ errors.name?.message }</p>}
+
+                    </div>
+                    <div className="mt-6">
                         <label htmlFor="email" className="text-sm font-medium">Email</label>
                         <input
                             type="email"
