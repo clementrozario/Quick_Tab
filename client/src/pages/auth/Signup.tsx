@@ -62,7 +62,7 @@ export const Signup = () => {
                         {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password?.message}</p>}
                     </div>
 
-                    <button className="w-full bg-black text-white py-4 mt-6 rounded-xl font-semibold hover:bg-gray-700 cursor-pointer">
+                    <button type="submit" className="w-full bg-black text-white py-3 mt-6 rounded-xl font-semibold hover:bg-gray-700 cursor-pointer">
                         Sign up
                     </button>
                 </form>

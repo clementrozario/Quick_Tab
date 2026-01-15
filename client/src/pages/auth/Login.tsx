@@ -1,16 +1,22 @@
 import { PiInvoiceDuotone } from "react-icons/pi";
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import {  z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
-type SignupFormData = {
-    email: string,
-    password:string
-}
+const loginSchema = z.object({
+    email: z.string().email('Please enter a valid email address'),
+    password:z.string().min(7,'Password must be atleast 7 characters')
+})
+
+type LoginFormData = z.infer<typeof loginSchema>
 
 export const Login = () => {
-    const { register, handleSubmit } = useForm<SignupFormData>()
+    const { register, handleSubmit,formState:{errors} } = useForm<LoginFormData>({
+        resolver:zodResolver(loginSchema)
+    })
     
-    const onSubmit = (data:SignupFormData) => {
+    const onSubmit = (data:LoginFormData) => {
         console.log(data)
     }
     
@@ -25,26 +31,36 @@ export const Login = () => {
               
               <h2 className="mt-8 font-semibold text-2xl text-center">Welcome Back</h2>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
               <div className="mt-8">
                     <label htmlFor="email" className="text-sm font-medium">Email</label>
                   <input
-                      type="text"
-                      className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
+                          type="email"
+                          placeholder="you@mail.com"
+                          className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
                       {...register('email')}
-                  />  
+                    />  
+                      {errors.email &&
+                          <p className="text-red-500 text-sm mt-1">{errors.email?.message}
+                          </p>
+                      }
               </div>
 
               <div className="mt-6">
                   <label htmlFor="password" className="text-sm font-medium">Password</label>
                   <input
-                      type="password"
-                      className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
+                          type="password"
+                          placeholder="••••••••"
+                          className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
                       {...register('password')}
-                  />
+                    />
+                      {errors.password &&
+                          <p className="text-red-500 text-sm mt-1">{errors.password?.message}
+                          </p>
+                      }
               </div>
 
-              <button className="bg-black text-white w-full mt-6 px-3 py-2 rounded font-semibold hover:bg-gray-700 cursor-pointer">
+              <button type="submit" className="bg-black text-white w-full mt-6 px-3 py-2 rounded font-semibold hover:bg-gray-700 cursor-pointer">
                   Log in
               </button>
 
