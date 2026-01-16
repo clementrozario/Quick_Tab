@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
 
 import authRouter from './routes/auth.routes'
 
@@ -11,6 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(express.json())
+app.use(cookieParser())
 
 const connectDB = async () => {
         const conn = await mongoose.connect(process.env.MONGO_URI as string);

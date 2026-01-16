@@ -21,7 +21,15 @@ export const signup = async (req: Request, res: Response) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10)
     
-        await User.create({ email, password:hashedPassword })
+        const newUser = await User.create({ email, password: hashedPassword })
+        const token = jwt.sign({ userId:newUser._id }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000
+        })
+
         res.status(201).json({ message: 'new user created'});
     } catch (error) {
         console.error("Signup error:", error);
@@ -49,12 +57,19 @@ export const signin = async (req: Request, res: Response) => {
         }
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
-
+        
         if (!process.env.JWT_SECRET) {
             throw new Error('JWT_SECRET is not defined in .env');
         }
 
-        res.status(200).json({ message: 'signIn successful', token });
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000
+        })
+
+        res.status(200).json({ message: 'signIn successful' });
     } catch (error) {
         console.error('SignIn error', error);
         return res.status(500).json({ message: 'Internal Server Error' });
