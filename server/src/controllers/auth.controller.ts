@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 
 export const signup = async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, name } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ message: 'All Fields are Required' });
@@ -21,7 +21,7 @@ export const signup = async (req: Request, res: Response) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10)
     
-        const newUser = await User.create({ email, password: hashedPassword })
+        const newUser = await User.create({ email, password: hashedPassword, name });
         const token = jwt.sign({ userId:newUser._id }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
         res.cookie('auth_token', token, {
             httpOnly: true,
