@@ -13,3 +13,17 @@ export const apiFetch = async (url:string,options:RequestInit={}) => {
     const response = await fetch(fullUrl, config);
     return response;
 }
+
+export const signupUser = async (data: { name: string; email: string; password: string }) => {
+    const response = await apiFetch('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    })
+    if (response.ok) {
+        return response.json()
+    }
+    else {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+    }
+}

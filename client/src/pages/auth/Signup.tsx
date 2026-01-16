@@ -1,8 +1,11 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom";
 import { PiInvoiceDuotone } from "react-icons/pi";
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
+
+import { signupUser } from "../../lib/api";
 
 const signupSchema = z.object({
     email: z.string().email(),
@@ -17,8 +20,17 @@ export const Signup = () => {
         resolver: zodResolver(signupSchema)
     })
 
+    const navigate = useNavigate()
+
+    const mutation = useMutation({
+        mutationFn: signupUser,
+        onSuccess: () => {
+            navigate('/login')
+        }
+    })
+
     const onSubmit = (data: SignupFormData) => {
-        console.log(data)
+        mutation.mutate(data)
     }
 
     return (
@@ -30,6 +42,12 @@ export const Signup = () => {
                 </div>
 
                 <h2 className="text-2xl font-semibold text-center mt-8">Create an Account</h2>
+
+                {mutation.isError && (
+                    <p className="text-red-500 text-sm mt-4 text-center">
+                        {mutation.error?.message || 'Signup Failed. Please try again.'}
+                    </p>
+                )}
 
                 <form onSubmit={handleSubmit(onSubmit)} noValidate>
                     <div className="mt-8">
@@ -62,8 +80,11 @@ export const Signup = () => {
                         {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password?.message}</p>}
                     </div>
 
-                    <button type="submit" className="w-full bg-black text-white py-3 mt-6 rounded-xl font-semibold hover:bg-gray-700 cursor-pointer">
-                        Sign up
+                    <button
+                        disabled={mutation.isPending}
+                        type="submit"
+                        className="w-full bg-black text-white py-3 mt-6 rounded-xl font-semibold hover:bg-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        {mutation.isPending ? 'Signing up ...' : 'Sign up'}
                     </button>
                 </form>
 
