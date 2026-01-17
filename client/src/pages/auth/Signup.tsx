@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query'
 import { signupUser } from "../../lib/api";
 
 const signupSchema = z.object({
-    email: z.string().email(),
+    email: z.string().email({ message: "Invalid email address" }),
     password: z.string().min(7, "password should be atleast 7 characters"),
     name:z.string().trim().min(1,'Name is required')
 })
