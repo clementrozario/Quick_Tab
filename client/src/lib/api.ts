@@ -27,3 +27,17 @@ export const signupUser = async (data: { name: string; email: string; password: 
         throw new Error(errorData.message);
     }
 }
+
+export const loginUser = async (data:{email:string,password:string}) => {
+    const response = await apiFetch('/auth/signin', {
+        method: 'POST',
+        body:JSON.stringify(data)
+    })
+    if (response.ok) {
+        return response.json()
+    }
+    else {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+    }
+}

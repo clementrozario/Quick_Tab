@@ -1,8 +1,11 @@
 import { PiInvoiceDuotone } from "react-icons/pi";
-import { Link } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import {  z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
+
+import { loginUser } from "../../lib/api";
 
 const loginSchema = z.object({
     email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -15,9 +18,18 @@ export const Login = () => {
     const { register, handleSubmit,formState:{errors} } = useForm<LoginFormData>({
         resolver:zodResolver(loginSchema)
     })
+
+    const navigate = useNavigate()
+
+    const mutation = useMutation({
+        mutationFn: loginUser,
+        onSuccess: () => {
+            navigate('/')
+        }
+    })
     
     const onSubmit = (data:LoginFormData) => {
-        console.log(data)
+        mutation.mutate(data)
     }
     
   return (
@@ -30,6 +42,12 @@ export const Login = () => {
               </div>
               
               <h2 className="mt-8 font-semibold text-2xl text-center">Welcome Back</h2>
+
+              {mutation.isError && (
+                  <p className="text-red-500 text-sm mt-4 text-center">
+                      {mutation.error?.message || 'Login Failed. Please try again'}
+                  </p>
+              )}
 
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
               <div className="mt-8">
@@ -60,9 +78,12 @@ export const Login = () => {
                       }
               </div>
 
-              <button type="submit" className="bg-black text-white w-full mt-6 px-3 py-2 rounded font-semibold hover:bg-gray-700 cursor-pointer">
-                  Log in
-              </button>
+                <button
+                    disabled={mutation.isPending}
+                    type="submit"
+                    className="bg-black text-white w-full mt-6 px-3 py-2 rounded font-semibold hover:bg-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        {mutation.isPending ? 'Logging in...':'Log in'}
+                </button>
 
               <button className="bg-gray-100 w-full px-3 py-2 rounded font-medium mt-2 hover:bg-gray-400 cursor-pointer">
                   Reset Password
