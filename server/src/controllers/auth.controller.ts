@@ -14,15 +14,15 @@ export const signup = async (req: Request, res: Response) => {
         if (password.length < 7) {
             return res.status(400).json({ message: "Password must be at least 7 characters" });
         }
-    
-        const existingUser = await User.findOne({ email});
+
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(409).json({ message: 'user already exists' });
         }
         const hashedPassword = await bcrypt.hash(password, 10)
-    
+
         const newUser = await User.create({ email, password: hashedPassword, name });
-        const token = jwt.sign({ userId:newUser._id }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
+        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
         res.cookie('auth_token', token, {
             httpOnly: true,
             secure: false,
@@ -30,7 +30,7 @@ export const signup = async (req: Request, res: Response) => {
             maxAge: 24 * 60 * 60 * 1000
         })
 
-        res.status(201).json({ message: 'new user created'});
+        res.status(201).json({ message: 'new user created' });
     } catch (error) {
         console.error("Signup error:", error);
         res.status(500).json({ message: "Internal Server error" });
@@ -57,14 +57,14 @@ export const signin = async (req: Request, res: Response) => {
         }
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
-        
+
         if (!process.env.JWT_SECRET) {
             throw new Error('JWT_SECRET is not defined in .env');
         }
 
         res.cookie('auth_token', token, {
             httpOnly: true,
-            secure: true,
+            secure: false,
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000
         })
