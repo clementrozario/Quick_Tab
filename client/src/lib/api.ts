@@ -1,3 +1,6 @@
+import { data } from "react-router-dom";
+import { json } from "zod";
+
 export const API_BASE_URL = 'http://localhost:5003/api'
 
 export const apiFetch = async (url:string,options:RequestInit={}) => {
@@ -33,6 +36,17 @@ export const loginUser = async (data:{email:string,password:string}) => {
         method: 'POST',
         body:JSON.stringify(data)
     })
+    if (response.ok) {
+        return response.json()
+    }
+    else {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+    }
+}
+
+export const getMe = async () => {
+    const response = await apiFetch('/auth/me')
     if (response.ok) {
         return response.json()
     }
