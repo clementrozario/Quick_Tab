@@ -3,6 +3,10 @@ import { Request, Response } from "express";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
+interface AuthRequest extends Request {
+    userId?: string
+}
+
 export const signup = async (req: Request, res: Response) => {
     try {
         const { email, password, name } = req.body;
@@ -73,5 +77,20 @@ export const signin = async (req: Request, res: Response) => {
     } catch (error) {
         console.error('SignIn error', error);
         return res.status(500).json({ message: 'Internal Server Error' });
+    }
+}
+
+export const getMe = async (req:AuthRequest,res:Response) => {
+    try {
+        const userId = req.userId;
+        const user = await User.findById(userId).select('-password');
+        
+        if (!user) {
+            return res.status(404).json({message:'user not found'})
+        }
+        return res.status(200).json(user);
+    } catch(error) {
+        console.error(error);
+        return res.status(500).json({message:'Internal server Error'})
     }
 }
