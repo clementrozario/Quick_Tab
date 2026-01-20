@@ -1,13 +1,12 @@
+import 'dotenv/config'
 import express from 'express';
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import cors from 'cors'
 
 import authRouter from './routes/auth.routes'
+import userRoutes from './routes/user.routes'
 
-
-dotenv.config();
 
 if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET is misssing in .env');
@@ -28,7 +27,8 @@ const connectDB = async () => {
         console.log(`MongoDB is connected to ${conn.connection.host}`);
 }
 
-app.use('/api/auth',authRouter)
+app.use('/api/auth', authRouter)
+app.use('/api/user', userRoutes)
     
 const startServer = async () => {
     try {
