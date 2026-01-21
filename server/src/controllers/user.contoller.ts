@@ -47,3 +47,45 @@ export const uploadLogo = async (req: AuthRequest, res: Response) => {
         return res.status(500).json({ error: 'Failed to upload logo' })
     }
 }
+
+export const updateProfile = async (req:AuthRequest,res:Response) => {
+    try {
+        const userId = req.userId
+        if (!userId) {
+            return res.status(400).json({ error: 'Unauthorized' });
+        } 
+        const { businessName, businessAddress, defaultCurrency } = req.body;
+
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+            $set: {
+                businessName,
+                businessAddress,
+                defaultCurrency
+            }
+        },
+            {
+                new: true,
+                runValidators:true
+            }
+        ).select('-password')
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                success: false,
+                message:'User nor found'
+            })
+        }
+        return res.status(200).json({
+            success: true,
+            message: 'User updated successfully',
+            user:updatedUser
+        })
+
+    } catch (error) {
+        console.error('update profile error', error);
+        return res.status(500).json({
+            success: false,
+            message:"Failed to update profile"
+        })
+    }
+}
