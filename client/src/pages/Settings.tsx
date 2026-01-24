@@ -27,7 +27,21 @@ export const Settings = () => {
         }
     })
 
-    const [ isLoading,setIsLoading ] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(user?.logoUrl || null)
+    
+    const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+
+        if (file && file.type.startsWith('image/')) {
+            setSelectedFile(file)
+            const objectUrl = URL.createObjectURL(file)
+            setPreviewUrl(objectUrl)
+
+            return () => URL.revokeObjectURL(objectUrl)
+        }
+    }
     
     const onSubmit = (data: SettingsFormData) => {
         console.log(data)
@@ -94,6 +108,35 @@ export const Settings = () => {
                          </p>
                         }
                     </div>
+
+                    <div className="mt-6 border-t pt-6">
+                        <h3 className="text-lg font-semibold mb-4">Business Logo</h3>
+                        <label className="text-sm font-medium">
+                            Upload Logo
+                        </label>
+
+                        <div className="flex justify-center mb-4">
+                            {previewUrl ? (
+                                <img
+                                    src={previewUrl}
+                                    alt="Business Logo"
+                                    className="w-32 h-32 rounded-full object-cover object-center border-4 border-gray-200"
+                                />
+                            ) : (
+                                    <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300">
+                                        <span className="text-gray-500 text-sm">No Logo</span>
+                                    </div>
+                            )}
+                        </div>
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
+                        />
+                    </div>
+
                     <button
                         type="submit"
                         disabled={isLoading}
