@@ -1,15 +1,15 @@
-import { data } from "react-router-dom";
-import { json } from "zod";
-
 export const API_BASE_URL = 'http://localhost:5003/api'
 
 export const apiFetch = async (url:string,options:RequestInit={}) => {
     const fullUrl = `${API_BASE_URL}${url}`
+
+    const isFormData = options.body instanceof FormData
+
     const config: RequestInit = {
         ...options,
         credentials: 'include',
         headers: {
-            'Content-Type': 'application/json',
+            ...(isFormData ? {}:{'Content-Type':'application/json'}),
             ...options.headers
         }
     }
@@ -53,5 +53,22 @@ export const getMe = async () => {
     else {
         const errorData = await response.json();
         throw new Error(errorData.message);
+    }
+}
+
+export const uploadLogo = async (file: File) => {
+    const formData = new FormData()
+    formData.append('logo', file)
+    
+    const response = await apiFetch('/user/profile/logo', {
+        method: 'POST',
+        body: formData,
+    })
+
+    if (response.ok) {
+        return response.json()
+    } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to upload logo')
     }
 }

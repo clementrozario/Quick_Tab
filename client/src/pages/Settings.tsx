@@ -3,8 +3,10 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
 
 import { useAuth } from "../lib/useAuth";
+import { uploadLogo } from "../lib/api";
 
 const settingsSchema = z.object({
     businessName: z.string().trim().min(1, 'Business name is required'),
@@ -30,6 +32,22 @@ export const Settings = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(user?.logoUrl || null)
+    const [uploadMessage,setUploadMessage] = useState<{type:'success' | 'error',text:string} | null>(null)
+    
+    const uploadMutation = useMutation({
+        mutationFn: uploadLogo,
+        onSuccess: (data) => {
+            setPreviewUrl(data.logoUrl)
+            setSelectedFile(null)
+            setUploadMessage({ type: 'success', text: 'Logo Uploaded Successfully' })
+            setTimeout(()=>setUploadMessage(null),3000)
+        },
+        onError: (error: Error) => {
+            console.error('Upload Failed:', error.message)
+            setUploadMessage({ type: 'error', text: error.message || "Failed to upload Logo" })
+            setTimeout(()=>setUploadMessage(null),3000)
+        }
+    })
     
     const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -135,6 +153,19 @@ export const Settings = () => {
                             onChange={handleFileChange}
                             className="w-full border border-gray-300 rounded px-3 py-2 mt-1"
                         />
+                        <button
+                            type="button"
+                            onClick={() => selectedFile && uploadMutation.mutate(selectedFile)}
+                            disabled={!selectedFile || uploadMutation.isPending}
+                            className="w-full bg-blue-600 text-white py-2 mt-3 rounded-lg font-semibold hover:bg-blue-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {uploadMutation.isPending?'Uploading...':'Upload Logo'}
+                        </button>
+                        {uploadMessage && (
+                            <p className={`text-sm mt-2 text-center ${uploadMessage.type === 'success' ? 'text-green-600':'text-red-600'}`}>
+                                {uploadMessage.text}
+                            </p>
+                        )}
                     </div>
 
                     <button
