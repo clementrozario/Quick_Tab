@@ -7,6 +7,7 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useAuth } from "../lib/useAuth";
 import { uploadLogo } from "../lib/api";
+import { useUserStore } from "../store/useUseStore";
 
 const settingsSchema = z.object({
     businessName: z.string().trim().min(1, 'Business name is required'),
