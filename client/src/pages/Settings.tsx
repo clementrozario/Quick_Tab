@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 
 import { useAuth } from "../lib/useAuth";
-import { uploadLogo } from "../lib/api";
+import { uploadLogo,updateProfile } from "../lib/api";
 import { useUserStore } from "../store/useUseStore";
 
 const settingsSchema = z.object({
@@ -20,6 +20,8 @@ type SettingsFormData = z.infer<typeof settingsSchema>
 export const Settings = () => {
 
     const { data: user } = useAuth()
+
+    const setUserProfile = useUserStore((state) => state.setUserProfile);
 
     const { register, handleSubmit, formState: { errors } } = useForm<SettingsFormData>({
         resolver: zodResolver(settingsSchema),
@@ -40,6 +42,11 @@ export const Settings = () => {
         onSuccess: (data) => {
             setPreviewUrl(data.logoUrl)
             setSelectedFile(null)
+
+            const currentProfile = useUserStore.getState().userProfile
+            if (currentProfile) {
+                setUserProfile({ ...currentProfile, logoUrl: data.logoUrl })
+            }
             setUploadMessage({ type: 'success', text: 'Logo Uploaded Successfully' })
             setTimeout(()=>setUploadMessage(null),3000)
         },
@@ -47,6 +54,17 @@ export const Settings = () => {
             console.error('Upload Failed:', error.message)
             setUploadMessage({ type: 'error', text: error.message || "Failed to upload Logo" })
             setTimeout(()=>setUploadMessage(null),3000)
+        }
+    })
+
+    const updateMutation = useMutation({
+        mutationFn: updateProfile,
+        onSuccess: (data) => { 
+            setUserProfile(data.user)
+            console.log('Profile Updated',data)
+        },
+        onError: (error: Error) => {
+            console.error('Update failed',error.message)
         }
     })
     
@@ -63,7 +81,7 @@ export const Settings = () => {
     }
     
     const onSubmit = (data: SettingsFormData) => {
-        console.log(data)
+        updateMutation.mutate(data)
     }
 
     return (
@@ -162,6 +180,7 @@ export const Settings = () => {
                         >
                             {uploadMutation.isPending?'Uploading...':'Upload Logo'}
                         </button>
+
                         {uploadMessage && (
                             <p className={`text-sm mt-2 text-center ${uploadMessage.type === 'success' ? 'text-green-600':'text-red-600'}`}>
                                 {uploadMessage.text}
@@ -171,10 +190,10 @@ export const Settings = () => {
 
                     <button
                         type="submit"
-                        disabled={isLoading}
+                        disabled={updateMutation.isPending}
                         className="w-full bg-black text-white py-3 mt-6 rounded-xl font-semibold hover:bg-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isLoading ? 'Saving' : 'Save Changes'}
+                        {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
                     </button>
                 </form>
 

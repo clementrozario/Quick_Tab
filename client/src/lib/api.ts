@@ -72,3 +72,16 @@ export const uploadLogo = async (file: File) => {
         throw new Error(errorData.error || 'Failed to upload logo')
     }
 }
+
+export const updateProfile = async (data: { businessName?: string; businessAddress?: string; defaultCurrency?:string}) => {
+    const response = await apiFetch('/user/profile',{
+        method: 'PUT',
+        body:JSON.stringify(data)
+    })
+    if (response.ok) {
+        return response.json()
+    } else {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to update profile')
+    }
+}
