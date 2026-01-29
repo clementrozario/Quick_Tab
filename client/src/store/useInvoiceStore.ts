@@ -23,7 +23,7 @@ export interface InvoiceDraft {
 }
 
 interface InvoiceStore {
-    currentInvoice: InvoiceDraft | null
+    currentInvoice: InvoiceDraft 
     setCurrentInvoice: (invoice: InvoiceDraft) => void
     resetInvoice: () => void
     addItem: (item: Omit<InvoiceItem, 'lineTotal'>) => void
@@ -32,12 +32,26 @@ interface InvoiceStore {
     updateInvoiceField: (field: keyof InvoiceDraft, value: any) => void
 }
 
+const createEmptyInvoice = (): InvoiceDraft => ({
+    clientName: '',
+    clientEmail: '',
+    invoiceDate: new Date().toISOString().split('T')[0],
+    currency: 'USD',
+    items: [],
+    subtotal: 0,
+    taxAmount: 0,
+    discountAmount: 0,
+    total: 0,
+    notes:''
+})
+
+
 export const useInvoiceStore = create<InvoiceStore>((set) => ({
-    currentInvoice: null,
+    currentInvoice: createEmptyInvoice(),
     
     setCurrentInvoice: (invoice) => set({ currentInvoice: invoice }),
     
-    resetInvoice: () => set({ currentInvoice: null }),
+    resetInvoice: () => set({ currentInvoice: createEmptyInvoice() }),
 
     addItem: (item) => set((state) => {
         if (!state.currentInvoice) return state

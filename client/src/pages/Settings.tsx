@@ -20,7 +20,7 @@ type SettingsFormData = z.infer<typeof settingsSchema>
 export const Settings = () => {
 
     const { data: user } = useAuth()
-
+    
     const setUserProfile = useUserStore((state) => state.setUserProfile);
 
     const { register, handleSubmit, formState: { errors } } = useForm<SettingsFormData>({
