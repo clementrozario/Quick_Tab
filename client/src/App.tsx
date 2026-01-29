@@ -4,23 +4,35 @@ import { Signup } from "./pages/auth/Signup";
 import { LandingPage } from "./pages/landingPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Settings } from "./pages/Settings";
+import { InvoiceBuilder } from "./pages/invoice/InvoiceBuilder";
 
 
 function App() {
   return (
       <Routes>
+      
       <Route path="/" element={
         <ProtectedRoute>
           <LandingPage />
         </ProtectedRoute>
         } />
-        <Route path="/signup" element={<Signup />} />
+      
+      <Route path="/signup" element={<Signup />} />
+      
       <Route path="/login" element={<Login />} />
+      
       <Route path="/settings" element={
         <ProtectedRoute>
           <Settings />
         </ProtectedRoute>
       } />
+
+      <Route path="/invoice/new" element={
+        <ProtectedRoute>
+            <InvoiceBuilder />
+        </ProtectedRoute>
+      } />
+
     </Routes>
 
   )
