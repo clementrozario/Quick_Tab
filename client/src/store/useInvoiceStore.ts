@@ -4,9 +4,7 @@ export interface InvoiceItem {
     description: string
     quantity: number
     unitPrice: number
-    taxPercentage?: number      
-    discountPercentage?: number 
-    lineTotal: number           
+    lineTotal: number // quantity * unitprice           
 }
 
 export interface InvoiceDraft {
@@ -16,8 +14,10 @@ export interface InvoiceDraft {
     currency: string
     items: InvoiceItem[]
     subtotal: number
-    taxAmount: number
+    discountRate:number
+    taxRate: number
     discountAmount: number
+    taxAmount:number
     total: number
     notes?: string
 }
@@ -26,10 +26,11 @@ interface InvoiceStore {
     currentInvoice: InvoiceDraft 
     setCurrentInvoice: (invoice: InvoiceDraft) => void
     resetInvoice: () => void
-    addItem: (item: Omit<InvoiceItem, 'lineTotal'>) => void
+    addItem: () => void
     updateItem: (index: number, updatedItem: Partial<InvoiceItem>) => void
     removeItem: (index: number) => void
-    updateInvoiceField: (field: keyof InvoiceDraft, value: any) => void
+    updateGlobalField: (field:'discountRate' | 'taxRate' | keyof Omit<InvoiceDraft,'items' | 'subtotal' | 'discountAmount' | 'taxAmount' | 'total'>,value:any) => void
+    recalculateTotals:() => void
 }
 
 const createEmptyInvoice = (): InvoiceDraft => ({
@@ -37,10 +38,19 @@ const createEmptyInvoice = (): InvoiceDraft => ({
     clientEmail: '',
     invoiceDate: new Date().toISOString().split('T')[0],
     currency: 'USD',
-    items: [],
+    items: [
+        {
+            description: '',
+            quantity: 1,
+            unitPrice: 0,
+            lineTotal:0
+        }
+    ],
     subtotal: 0,
-    taxAmount: 0,
+    discountRate: 0,
+    taxRate: 0,
     discountAmount: 0,
+    taxAmount:0,
     total: 0,
     notes:''
 })
@@ -53,20 +63,14 @@ export const useInvoiceStore = create<InvoiceStore>((set) => ({
     
     resetInvoice: () => set({ currentInvoice: createEmptyInvoice() }),
 
-    addItem: (item) => set((state) => {
-        if (!state.currentInvoice) return state
-        const lineTotal = item.quantity * item.unitPrice
-        const newItem = { ...item, lineTotal }
-        return {
-            currentInvoice: {
-                ...state.currentInvoice,
-                items:[...state.currentInvoice.items,newItem]
-            }
+    addItem: () => set((state) => ({
+        currentInvoice: {
+            ...state.currentInvoice,
+            items: [...state.currentInvoice.items, { description: '', quantity: 1, unitPrice: 0, lineTotal: 0 }]
         }
-    }),
+    })),
 
     updateItem: (index, updatedItem) => set((state) => {
-        if (!state.currentInvoice) return state
         const items = [...state.currentInvoice.items]
         items[index] = { ...items[index], ...updatedItem }
         return {
@@ -76,26 +80,36 @@ export const useInvoiceStore = create<InvoiceStore>((set) => ({
             }
         }
     }),
-    removeItem: (index) => set((state) => {
-        if (!state.currentInvoice) return state
-        const items = state.currentInvoice.items.filter((_, i) => i !== index)
-        return {
-            currentInvoice: {
-                ...state.currentInvoice,
-                items
-            }
+
+    removeItem: (index) => set((state) => ({
+        currentInvoice: {
+            ...state.currentInvoice,
+            items: state.currentInvoice.items.filter((_, i) => i !== index)
         }
-    }),
-    updateInvoiceField: (field, value) => set((state) => {
-        if (!state.currentInvoice) return state
+    })),
+
+    updateGlobalField: (field, value) => set((state) => ({
+        currentInvoice: { ...state.currentInvoice, [field]: value }
+    })),
+
+    recalculateTotals: () => set((state) => {
+        const { items, discountRate, taxRate } = state.currentInvoice
+        
+        const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0)
+        
+        const discountAmount = subtotal * (discountRate / 100)
+        const taxAmount = subtotal * (taxRate / 100)
+        const total = subtotal - discountAmount + taxAmount
+
         return {
             currentInvoice: {
                 ...state.currentInvoice,
-                [field]:value
+                subtotal,
+                discountAmount,
+                taxAmount,
+                total
             }
         }
     })
-    
-    
-
 }))
+   
