@@ -4,12 +4,12 @@ import { useInvoiceStore } from "../../store/useInvoiceStore"
 
 export const InvoiceBuilder = () => {
     const { currentInvoice, addItem, updateItem, removeItem } = useInvoiceStore()
-    
-    
+
+
     return (
         <div className="h-screen flex bg-gray-50 overflow-hidden">
             <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-                
+
                 {/* logo */}
                 <div className="h-16 flex items-center mx-3.5 justify-baseline gap-2">
                     <div className="bg-black p-1.5 rounded-lg">
@@ -50,24 +50,29 @@ export const InvoiceBuilder = () => {
                         Invoice Generator
                     </h1>
 
-                    <div className="flex gap-3 items-center">
-                        <div className=" text-gray-400">Including watermark *</div>
-                        <button className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
-                            <FiEye />
-                            Preview
-                        </button>
-                        <button className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
-                            <FiDownload />
-                            Download
-                        </button>
-                        <button className="px-2 py-2 border rounded-lg text-pretty bg-black text-white hover:bg-gray-800 hover:cursor-pointer">
-                            Remove watermark
-                        </button>
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="flex gap-3 items-center">
+                            <button className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
+                                <FiEye />
+                                Preview
+                            </button>
+                            <button className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
+                                <FiDownload />
+                                Download
+                            </button>
+                            <button className="px-2 py-2 border rounded-lg text-pretty bg-black text-white hover:bg-gray-800 hover:cursor-pointer">
+                                Remove watermark
+                            </button>
+                        </div>
+                    
+                        <div className="text-sm text-gray-600">
+                            Including watermark *
+                        </div>
                     </div>
                 </div>
 
                 {/* Cards */}
-               
+
                 {/* Invoice details */}
                 <section className="bg-white rounded-lg p-6 mb-6 border border-gray-200">
                     <h2 className="font-semibold text-lg mb-6">Invoice Details</h2>
@@ -284,7 +289,7 @@ export const InvoiceBuilder = () => {
                                 defaultValue="**TechStart Ventures LLC**&#10;456 Business Park Avenue&#10;Floor 8&#10;New York, NY 10013&#10;United States"
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30 text-sm"
                                 placeholder="Bill to Address"
-                            />                            
+                            />
                         </div>
                     </div>
 
@@ -315,7 +320,7 @@ export const InvoiceBuilder = () => {
                             <div className="col-span-2">Total</div>
                             <div className="col-span-1"></div>
                         </div>
-                        
+
                         {currentInvoice.items.map((item, index) => (
                             <div key={index} className="grid grid-cols-12 gap-4 items-start">
                                 {/* descrip */}
@@ -338,14 +343,14 @@ export const InvoiceBuilder = () => {
                                             if (val === "") {
                                                 return updateItem(index, { quantity: 0 })
                                             }
-                                            updateItem(index,{quantity:Number(val)})
+                                            updateItem(index, { quantity: Number(val) })
                                         }}
                                         onBlur={() => {
                                             if (!item.quantity || item.quantity < 1) {
-                                                updateItem(index,{quantity:1})
+                                                updateItem(index, { quantity: 1 })
                                             }
                                         }}
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"     
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                                 {/* unitprice */}
@@ -359,13 +364,13 @@ export const InvoiceBuilder = () => {
                                             const val = e.target.value
 
                                             if (val === "") {
-                                                return updateItem(index,{unitPrice:0})
+                                                return updateItem(index, { unitPrice: 0 })
                                             }
-                                            updateItem(index,{unitPrice:Number(val)})
+                                            updateItem(index, { unitPrice: Number(val) })
                                         }}
                                         onBlur={() => {
                                             if (item.unitPrice < 0 || !item.unitPrice) {
-                                                updateItem(index,{unitPrice:0})
+                                                updateItem(index, { unitPrice: 0 })
                                             }
                                         }}
                                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -374,7 +379,7 @@ export const InvoiceBuilder = () => {
                                 </div>
                                 {/* total */}
                                 <div className="col-span-2 flex items-center text-sm font-medium w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100">
-                                    ${(item.quantity*item.unitPrice)}
+                                    ${(item.quantity * item.unitPrice)}
                                 </div>
                                 {/* Remove */}
                                 <div className="col-span-1">
@@ -388,7 +393,7 @@ export const InvoiceBuilder = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>                                        
+                    </div>
                 </section>
 
                 {/* Totals */}
@@ -453,7 +458,7 @@ export const InvoiceBuilder = () => {
                                     placeholder="Field Label"
                                 />
                             </div>
-                            
+
                             <div className="col-span-6">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Value
@@ -584,7 +589,7 @@ export const InvoiceBuilder = () => {
                 </section>
 
             </main>
-            
-       </div>
+
+        </div>
     )
 }
