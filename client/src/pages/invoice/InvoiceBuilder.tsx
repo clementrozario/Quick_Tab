@@ -50,7 +50,7 @@ export const InvoiceBuilder = () => {
                         Invoice Generator
                     </h1>
 
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-baselinez gap-2">
                         <div className="flex gap-3 items-center">
                             <button className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
                                 <FiEye />
@@ -583,7 +583,7 @@ export const InvoiceBuilder = () => {
                     <h2 className="font-semibold text-lg mb-6">Notes</h2>
                     <textarea
                         defaultValue="Thank you for your business. Payment is due within 30 days."
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30"
                         placeholder="Additional notes or payment terms..."
                     />
                 </section>
