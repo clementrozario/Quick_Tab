@@ -56,41 +56,53 @@ const createEmptyInvoice = (): InvoiceDraft => ({
 })
 
 
-export const useInvoiceStore = create<InvoiceStore>((set) => ({
+export const useInvoiceStore = create<InvoiceStore>((set,get) => ({
     currentInvoice: createEmptyInvoice(),
     
     setCurrentInvoice: (invoice) => set({ currentInvoice: invoice }),
     
     resetInvoice: () => set({ currentInvoice: createEmptyInvoice() }),
 
-    addItem: () => set((state) => ({
-        currentInvoice: {
-            ...state.currentInvoice,
-            items: [...state.currentInvoice.items, { description: '', quantity: 1, unitPrice: 0, lineTotal: 0 }]
-        }
-    })),
-
-    updateItem: (index, updatedItem) => set((state) => {
-        const items = [...state.currentInvoice.items]
-        items[index] = { ...items[index], ...updatedItem }
-        return {
+    addItem: () => {
+        set((state) => ({
             currentInvoice: {
                 ...state.currentInvoice,
-                items
+                items: [...state.currentInvoice.items, { description: '', quantity: 1, unitPrice: 0, lineTotal: 0 }]
             }
-        }
-    }),
+        }))
+        get().recalculateTotals()
+    },
 
-    removeItem: (index) => set((state) => ({
-        currentInvoice: {
-            ...state.currentInvoice,
-            items: state.currentInvoice.items.filter((_, i) => i !== index)
-        }
-    })),
+    updateItem: (index, updatedItem) => {
+        set((state) => {
+            const items = [...state.currentInvoice.items]
+            items[index] = { ...items[index], ...updatedItem }
+            return {
+                currentInvoice: {
+                    ...state.currentInvoice,
+                    items
+                }
+            }
+        })
+            get().recalculateTotals()
+    },
 
-    updateGlobalField: (field, value) => set((state) => ({
-        currentInvoice: { ...state.currentInvoice, [field]: value }
-    })),
+    removeItem: (index) => {
+        set((state) => ({
+            currentInvoice: {
+                ...state.currentInvoice,
+                items: state.currentInvoice.items.filter((_, i) => i !== index)
+            }
+        }))
+            get().recalculateTotals()
+    },
+
+    updateGlobalField: (field, value) => {
+        set((state) => ({
+            currentInvoice: { ...state.currentInvoice, [field]: value }
+        }))
+            get().recalculateTotals()
+    },
 
     recalculateTotals: () => set((state) => {
         const { items, discountRate, taxRate } = state.currentInvoice
@@ -101,6 +113,8 @@ export const useInvoiceStore = create<InvoiceStore>((set) => ({
         const taxAmount = subtotal * (taxRate / 100)
         const total = subtotal - discountAmount + taxAmount
 
+        console.log({ subtotal, discountAmount, taxAmount, total });
+        
         return {
             currentInvoice: {
                 ...state.currentInvoice,
