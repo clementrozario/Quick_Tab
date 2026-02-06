@@ -1,14 +1,31 @@
 import { PiInvoiceDuotone } from "react-icons/pi";
 import { FiEye, FiDownload, FiPlus, FiX } from 'react-icons/fi'
-import { useState } from 'react'
+import { useState ,useEffect} from 'react'
+import { useMutation } from '@tanstack/react-query'
 
 import { useInvoiceStore } from "../../store/useInvoiceStore"
+import { uploadLogo } from "../../lib/api";
 
 export const InvoiceBuilder = () => {
     const { currentInvoice, addItem, updateItem, removeItem,updateGlobalField } = useInvoiceStore()
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [uploadMessage,setUploadMessage] = useState<{type:'success' | 'error', text:string} | null>(null)
+
+    const uploadMutation = useMutation({
+        mutationFn: uploadLogo,
+        onSuccess: (data) => {
+            updateGlobalField('logoUrl', data.logoUrl)
+            setSelectedFile(null)
+            setUploadMessage({ type: 'success', text: 'Logo uploaded successfully' })
+            setTimeout(()=>setUploadMessage(null),3000)
+        },
+        onError: (error: Error) => {
+            console.error('Upload failed', error.message)
+            setUploadMessage({ type: 'error', text: error.message || 'Failed to upload logo' })
+            setTimeout(()=>setUploadMessage(null),3000)
+        }
+    })
     
     const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -16,18 +33,33 @@ export const InvoiceBuilder = () => {
         if (file && file?.type?.startsWith('image/')) {
             setSelectedFile(file)
             const objectUrl = URL.createObjectURL(file)
-            setPreviewUrl(objectUrl)
+            updateGlobalField('logoUrl', objectUrl)
+
+            uploadMutation.mutate(file)
         }
     }
 
     const handleRemoveLogo = () => {
-        setPreviewUrl(null)
+        
+        if (currentInvoice.logoUrl && currentInvoice.logoUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(currentInvoice.logoUrl)
+        }
+        updateGlobalField('logoUrl', '')
         setSelectedFile(null)
+        
         const fileInput = document.getElementById('logo-upload') as HTMLInputElement
         if (fileInput) {
             fileInput.value = ''
         }
     }
+
+    useEffect(() => {
+        return () => {
+            if (currentInvoice.logoUrl && currentInvoice.logoUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(currentInvoice.logoUrl)
+            }
+        }
+    },[currentInvoice.logoUrl])
 
     return (
         <div className="h-screen flex bg-gray-50 overflow-hidden">
@@ -121,16 +153,18 @@ export const InvoiceBuilder = () => {
                             <div className="relative">
                                 <div
                                     onClick={() => {
-                                        if (!previewUrl) {
+                                        if (!currentInvoice.logoUrl && !uploadMutation.isPending) {
                                             document.getElementById('logo-upload')?.click()
                                         }
                                     }}
-                                    className={`w-full h-32 border-2 border-dashed rounded-lg flex items-center justify-center overflow-hidden ${previewUrl ? 'border-gray-300' : 'border-gray-300 cursor-pointer hover:border-blue-400'
-                                        } transition`}
+                                    className={`w-full h-32 border-2 border-dashed rounded-lg flex items-center justify-center overflow-hidden ${currentInvoice.logoUrl ? 'border-gray-300' : 'border-gray-300 cursor-pointer hover:border-blue-400'
+                                        } transition ${uploadMutation.isPending?'opacity-50':""}`}
                                 >   
-                                    {previewUrl ? (
+                                    {uploadMutation.isPending ? (
+                                        <span className="text-gray-400 text-sm">Uploading ...</span>
+                                    ) : currentInvoice.logoUrl ? (
                                         <img
-                                            src={previewUrl}
+                                            src={currentInvoice.logoUrl}
                                             alt="Logo"
                                             className="h-full w-full object-contain p-2"
                                         />
@@ -139,7 +173,7 @@ export const InvoiceBuilder = () => {
                                     )}                                    
                                 </div>
 
-                                {previewUrl && (
+                                {currentInvoice.logoUrl && !uploadMutation.isPending &&(
                                     <button
                                         type="button"
                                         onClick={handleRemoveLogo}
@@ -156,7 +190,12 @@ export const InvoiceBuilder = () => {
                                     onChange={handleFileChange}
                                     className="hidden"
                                 />
-                            </div>                            
+                            </div>         
+                            {uploadMessage && (
+                                <p className={`text-sm mt-2 ${uploadMessage.type==='success' ? 'text-green-600':'text-red-600'}`}>
+                                    {uploadMessage.text}
+                                </p>
+                            )}
                         </div>
                     </div>
 

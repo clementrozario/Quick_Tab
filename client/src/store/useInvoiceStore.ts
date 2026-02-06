@@ -12,6 +12,7 @@ export interface InvoiceDraft {
     clientEmail?: string
     invoiceDate: string
     currency: string
+    logoUrl?:string
     items: InvoiceItem[]
     subtotal: number
     discountRate:number
@@ -38,6 +39,7 @@ const createEmptyInvoice = (): InvoiceDraft => ({
     clientEmail: '',
     invoiceDate: new Date().toISOString().split('T')[0],
     currency: 'USD',
+    logoUrl: '',
     items: [
         {
             description: '',
