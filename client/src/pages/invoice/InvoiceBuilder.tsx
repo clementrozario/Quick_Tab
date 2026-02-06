@@ -1,10 +1,33 @@
 import { PiInvoiceDuotone } from "react-icons/pi";
 import { FiEye, FiDownload, FiPlus, FiX } from 'react-icons/fi'
+import { useState } from 'react'
+
 import { useInvoiceStore } from "../../store/useInvoiceStore"
 
 export const InvoiceBuilder = () => {
     const { currentInvoice, addItem, updateItem, removeItem,updateGlobalField } = useInvoiceStore()
 
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    
+    const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+
+        if (file && file?.type?.startsWith('image/')) {
+            setSelectedFile(file)
+            const objectUrl = URL.createObjectURL(file)
+            setPreviewUrl(objectUrl)
+        }
+    }
+
+    const handleRemoveLogo = () => {
+        setPreviewUrl(null)
+        setSelectedFile(null)
+        const fileInput = document.getElementById('logo-upload') as HTMLInputElement
+        if (fileInput) {
+            fileInput.value = ''
+        }
+    }
 
     return (
         <div className="h-screen flex bg-gray-50 overflow-hidden">
@@ -94,9 +117,46 @@ export const InvoiceBuilder = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Logo
                             </label>
-                            <div className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400 cursor-pointer hover:border-gray-400 transition">
-                                Upload Logo
-                            </div>
+
+                            <div className="relative">
+                                <div
+                                    onClick={() => {
+                                        if (!previewUrl) {
+                                            document.getElementById('logo-upload')?.click()
+                                        }
+                                    }}
+                                    className={`w-full h-32 border-2 border-dashed rounded-lg flex items-center justify-center overflow-hidden ${previewUrl ? 'border-gray-300' : 'border-gray-300 cursor-pointer hover:border-blue-400'
+                                        } transition`}
+                                >   
+                                    {previewUrl ? (
+                                        <img
+                                            src={previewUrl}
+                                            alt="Logo"
+                                            className="h-full w-full object-contain p-2"
+                                        />
+                                    ) : (
+                                        <span className="text-gray-400 text-sm">Upload Logo</span>
+                                    )}                                    
+                                </div>
+
+                                {previewUrl && (
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveLogo}
+                                        className="absolute top-2 right-2 text-red-500 text-sm font-medium hover:text-red-700"
+                                    >
+                                        x Remove
+                                    </button>   
+                                )}
+
+                                <input
+                                    id="logo-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                />
+                            </div>                            
                         </div>
                     </div>
 
