@@ -3,7 +3,7 @@ import { FiEye, FiDownload, FiPlus, FiX } from 'react-icons/fi'
 import { useInvoiceStore } from "../../store/useInvoiceStore"
 
 export const InvoiceBuilder = () => {
-    const { currentInvoice, addItem, updateItem, removeItem } = useInvoiceStore()
+    const { currentInvoice, addItem, updateItem, removeItem,updateGlobalField } = useInvoiceStore()
 
 
     return (
@@ -407,6 +407,24 @@ export const InvoiceBuilder = () => {
                             </label>
                             <input
                                 type="number"
+                                min="0"
+                                max="100"
+                                value={currentInvoice.discountRate === 0 ? "" : currentInvoice.discountRate}
+                                onChange={(e) => {
+                                    const val = e.target.value
+                                    if (val === "") {
+                                        return updateGlobalField('discountRate',0)
+                                    }
+                                    const value = Number(val)
+                                    updateGlobalField('discountRate',value)
+
+                                    updateGlobalField('discountRate',value)
+                                }}
+                                onBlur={() => {
+                                    if (currentInvoice.discountRate < 0 || !currentInvoice.discountRate) {
+                                        updateGlobalField('discountRate',0)
+                                    }
+                                }}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="0"
                             />
@@ -418,6 +436,22 @@ export const InvoiceBuilder = () => {
                             </label>
                             <input
                                 type="number"
+                                min="0"
+                                max="100"
+                                value={currentInvoice.taxRate === 0 ? "" :currentInvoice.taxRate}
+                                onChange={(e) => {
+                                    const val = e.target.value
+                                    if (val === "") {
+                                        return updateGlobalField('taxRate',0)
+                                    }
+                                    const value = Number(val)
+                                    updateGlobalField('taxRate',value)
+                                }}
+                                onBlur={() => {
+                                    if (currentInvoice.taxRate < 0 || !currentInvoice.taxRate) {
+                                        updateGlobalField('taxRate',0)
+                                    }
+                                }}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="0"
                             />
@@ -427,11 +461,26 @@ export const InvoiceBuilder = () => {
                     <div className="pt-2.5 space-y-2">
                         <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Subtotal</span>
-                            <span className="font-medium">$ 0.00</span>
+                            <span className="font-medium">${currentInvoice.subtotal.toFixed(2)}</span>
                         </div>
+
+                        {currentInvoice.discountRate > 0 && (
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Discount({currentInvoice.discountRate}%)</span>
+                                <span className="font-medium text-red-600">-${currentInvoice.discountAmount.toFixed(2)}</span>
+                            </div>
+                        )}
+
+                        {currentInvoice.taxRate > 0 && (
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Tax ({currentInvoice.taxRate}%)</span>
+                                <span className="font-medium text-green-600">+${ currentInvoice.taxAmount.toFixed(2)}</span>
+                            </div>
+                        )}
+
                         <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
                             <span>Total</span>
-                            <span>$ 0.00</span>
+                            <span>${ currentInvoice.total.toFixed(2)}</span>
                         </div>
                     </div>
                 </section>

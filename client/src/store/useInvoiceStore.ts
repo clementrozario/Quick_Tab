@@ -98,26 +98,51 @@ export const useInvoiceStore = create<InvoiceStore>((set,get) => ({
     },
 
     updateGlobalField: (field, value) => {
-        set((state) => ({
-            currentInvoice: { ...state.currentInvoice, [field]: value }
-        }))
+        set((state) => {
+            let sanitizedValue = value
+
+            if (field === 'discountRate' || field === 'taxRate') {
+                sanitizedValue = Math.max(0,Math.min(100,Number(value) || 0))
+            }
+
+            return {
+                currentInvoice: { ...state.currentInvoice, [field]: sanitizedValue }
+            }
+        })
             get().recalculateTotals()
     },
 
     recalculateTotals: () => set((state) => {
         const { items, discountRate, taxRate } = state.currentInvoice
-        
-        const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0)
-        
-        const discountAmount = subtotal * (discountRate / 100)
-        const taxAmount = subtotal * (taxRate / 100)
-        const total = subtotal - discountAmount + taxAmount
 
-        console.log({ subtotal, discountAmount, taxAmount, total });
+        if (items.length === 0) {
+            return {
+                currentInvoice: {
+                    ...state.currentInvoice,
+                    items: [],
+                    subtotal: 0,
+                    discountAmount: 0,
+                    taxAmount: 0,
+                    total: 0
+                }
+            }
+        }
+
+        const updatedItems = items.map(item => ({
+            ...item,
+            lineTotal:Number((item.quantity * item.unitPrice).toFixed(2))
+        }))
         
+        const subtotal = Number(updatedItems.reduce((sum, item) => sum + item.lineTotal, 0).toFixed(2))
+        
+        const discountAmount = Number((subtotal * (discountRate / 100)).toFixed(2))
+        const taxAmount = Number((subtotal * (taxRate / 100)).toFixed(2))
+        const total = Number((subtotal - discountAmount + taxAmount).toFixed(2))
+
         return {
             currentInvoice: {
                 ...state.currentInvoice,
+                items:updatedItems,
                 subtotal,
                 discountAmount,
                 taxAmount,
