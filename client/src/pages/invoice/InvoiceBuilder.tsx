@@ -5,12 +5,14 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useInvoiceStore } from "../../store/useInvoiceStore"
 import { uploadLogo } from "../../lib/api";
+import { InvoicePreview } from "../../components/InvoicePreview";
 
 export const InvoiceBuilder = () => {
     const { currentInvoice, addItem, updateItem, removeItem,updateGlobalField } = useInvoiceStore()
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
-    const [uploadMessage,setUploadMessage] = useState<{type:'success' | 'error', text:string} | null>(null)
+    const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+    const [showPreview,setShowPreview] = useState(false) 
 
     const uploadMutation = useMutation({
         mutationFn: uploadLogo,
@@ -107,10 +109,13 @@ export const InvoiceBuilder = () => {
 
                     <div className="flex flex-col items-baselinez gap-2">
                         <div className="flex gap-3 items-center">
-                            <button className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
+                            <button
+                                onClick={()=>setShowPreview(true)}
+                                className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
                                 <FiEye />
                                 Preview
                             </button>
+                            
                             <button className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
                                 <FiDownload />
                                 Download
@@ -737,6 +742,12 @@ export const InvoiceBuilder = () => {
                 </section>
 
             </main>
+
+            <InvoicePreview
+                invoice={currentInvoice}
+                isOpen={showPreview}
+                onClose={()=>setShowPreview(false)}
+            />
 
         </div>
     )
