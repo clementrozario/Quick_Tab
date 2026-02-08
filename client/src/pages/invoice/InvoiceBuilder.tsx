@@ -5,14 +5,13 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useInvoiceStore } from "../../store/useInvoiceStore"
 import { uploadLogo } from "../../lib/api";
-import { InvoicePreview } from "../../components/InvoicePreview";
+
 
 export const InvoiceBuilder = () => {
     const { currentInvoice, addItem, updateItem, removeItem,updateGlobalField } = useInvoiceStore()
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-    const [showPreview,setShowPreview] = useState(false) 
 
     const uploadMutation = useMutation({
         mutationFn: uploadLogo,
@@ -61,7 +60,12 @@ export const InvoiceBuilder = () => {
                 URL.revokeObjectURL(currentInvoice.logoUrl)
             }
         }
-    },[currentInvoice.logoUrl])
+    }, [currentInvoice.logoUrl])
+    
+    const handlePreview = () => {
+        sessionStorage.setItem('invoicePreview', JSON.stringify(currentInvoice))
+        window.open('/invoice/preview','_blank')
+    }
 
     return (
         <div className="h-screen flex bg-gray-50 overflow-hidden">
@@ -110,7 +114,7 @@ export const InvoiceBuilder = () => {
                     <div className="flex flex-col items-baselinez gap-2">
                         <div className="flex gap-3 items-center">
                             <button
-                                onClick={()=>setShowPreview(true)}
+                                onClick={handlePreview}
                                 className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
                                 <FiEye />
                                 Preview
@@ -741,14 +745,7 @@ export const InvoiceBuilder = () => {
                     />
                 </section>
 
-            </main>
-
-            <InvoicePreview
-                invoice={currentInvoice}
-                isOpen={showPreview}
-                onClose={()=>setShowPreview(false)}
-            />
-
+            </main>            
         </div>
     )
 }

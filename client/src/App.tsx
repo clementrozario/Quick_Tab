@@ -5,6 +5,7 @@ import { LandingPage } from "./pages/landingPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Settings } from "./pages/Settings";
 import { InvoiceBuilder } from "./pages/invoice/InvoiceBuilder";
+import { PreviewPage } from "./pages/invoice/PreviewPage";
 
 
 function App() {
@@ -30,6 +31,12 @@ function App() {
       <Route path="/invoice/new" element={
         <ProtectedRoute>
             <InvoiceBuilder />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/invoice/preview" element={
+        <ProtectedRoute>
+          <PreviewPage />
         </ProtectedRoute>
       } />
 
