@@ -148,7 +148,8 @@ export const InvoiceBuilder = () => {
                             </label>
                             <input
                                 type="text"
-                                defaultValue="Invoice"
+                                value={currentInvoice.invoiceTitle || 'Invoice'}
+                                onChange={(e)=>updateGlobalField('invoiceTitle',e.target.value)}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Invoice Title"
                             />
@@ -316,7 +317,8 @@ export const InvoiceBuilder = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    defaultValue="2026-01-01"
+                                    value={currentInvoice.issueDate || '2026-01-01'}
+                                    onChange={(e) => updateGlobalField('issueDate', e.target.value)}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
@@ -383,7 +385,8 @@ export const InvoiceBuilder = () => {
                                 From
                             </label>
                             <textarea
-                                defaultValue="**Acme Web Solutions, Inc.**&#10;123 Innovation Drive&#10;Suite 400&#10;San Francisco, CA 94105&#10;United States"
+                                value={currentInvoice.fromAddress || 'Acme Web Solutions, Inc.\n123 Innovation Drive\nSuite 400\nSan Francisco, CA 94105\nUnited States'}
+                                onChange={(e)=>updateGlobalField('fromAddress',e.target.value)}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30 text-sm"
                                 placeholder="From Address"
                             />
@@ -394,7 +397,8 @@ export const InvoiceBuilder = () => {
                                 Bill to
                             </label>
                             <textarea
-                                defaultValue="**TechStart Ventures LLC**&#10;456 Business Park Avenue&#10;Floor 8&#10;New York, NY 10013&#10;United States"
+                                value={currentInvoice.billToAddress || 'TechStart Ventures LLC.\n456 Business Park Avenue\nFloor 8\nNew York, NY 10013\nUnited States'}
+                                onChange={(e) => updateGlobalField('billToAddress',e.target.value)}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30 text-sm"
                                 placeholder="Bill to Address"
                             />
@@ -739,7 +743,8 @@ export const InvoiceBuilder = () => {
                 <section className="bg-white rounded-lg p-6 mb-6 border border-gray-200">
                     <h2 className="font-semibold text-lg mb-6">Notes</h2>
                     <textarea
-                        defaultValue="Thank you for your business. Payment is due within 30 days."
+                        value={currentInvoice.notes || 'Thank you for your business. Payment is due within 30 days.'}
+                        onChange={(e)=>updateGlobalField('notes',e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30"
                         placeholder="Additional notes or payment terms..."
                     />

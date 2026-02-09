@@ -10,9 +10,18 @@ export interface InvoiceItem {
 export interface InvoiceDraft {
     clientName?: string
     clientEmail?: string
-    invoiceDate: string
+    
+    invoiceNumber:string
+    issueDate: string
+    dueDate: string
+    
     currency: string
-    logoUrl?:string
+    logoUrl?: string
+    
+    invoiceTitle: string
+    fromAddress: string
+    billToAddress: string
+    
     items: InvoiceItem[]
     subtotal: number
     discountRate:number
@@ -20,6 +29,7 @@ export interface InvoiceDraft {
     discountAmount: number
     taxAmount:number
     total: number
+
     notes?: string
 }
 
@@ -37,9 +47,17 @@ interface InvoiceStore {
 const createEmptyInvoice = (): InvoiceDraft => ({
     clientName: '',
     clientEmail: '',
-    invoiceDate: new Date().toISOString().split('T')[0],
+    invoiceNumber:'',
+    issueDate: new Date().toISOString().split('T')[0],
+    dueDate:new Date().toISOString().split('T')[0],
     currency: 'USD',
     logoUrl: '',
+
+    invoiceTitle: '',
+    fromAddress: '',
+    billToAddress: '',
+    notes: '',
+    
     items: [
         {
             description: '',
@@ -54,7 +72,6 @@ const createEmptyInvoice = (): InvoiceDraft => ({
     discountAmount: 0,
     taxAmount:0,
     total: 0,
-    notes:''
 })
 
 
