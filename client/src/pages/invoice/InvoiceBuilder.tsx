@@ -602,145 +602,73 @@ export const InvoiceBuilder = () => {
 
                 {/* bank info */}
                 <section className="bg-white rounded-lg p-6 mb-6 border border-gray-200">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="font-semibold text-lg">Bank Information</h2>
-                        <button className="text-sm text-gray-600 hover:text-black flex items-center gap-1">
-                            <FiPlus /> Add Bank Field
-                        </button>
-                    </div>
+                    <h2 className="font-semibold text-lg mb-6">Bank Information</h2>
 
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-12 gap-4 items-start">
-                            <div className="col-span-5">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Field Label
-                                </label>
-                                <input
-                                    type="text"
-                                    value={currentInvoice.accountName}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Field Label"
-                                />
-                            </div>
+                    <div className="grid grid-cols-2 gap-6">
 
-                            <div className="col-span-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Value
-                                </label>
-                                <input
-                                    type="text"
-                                    value={currentInvoice.accountNumber}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Value"
-                                />
-                            </div>
-
-                            <div className="col-span-1 pt-8">
-                                <button className="text-gray-400 hover:text-red-500 transition">
-                                    <FiX className="text-lg" />
-                                </button>
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Account Name
+                            </label>
+                            <input
+                                type="text"
+                                value={currentInvoice.accountName || ''}
+                                onChange={(e) =>
+                                    updateGlobalField('accountName', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                placeholder="Account holder name"
+                            />
                         </div>
 
-                        <div className="grid grid-cols-12 gap-4 items-start">
-                            <div className="col-span-5">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Field Label
-                                </label>
-                                <input
-                                    type="text"
-                                    value={currentInvoice.accountName}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Field Label"
-                                />
-                            </div>
-
-                            <div className="col-span-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Value
-                                </label>
-                                <input
-                                    type="text"
-                                    value={currentInvoice.accountNumber}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Value"
-                                />
-                            </div>
-
-                            <div className="col-span-1 pt-8">
-                                <button className="text-gray-400 hover:text-red-500 transition">
-                                    <FiX className="text-lg" />
-                                </button>
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Account Number
+                            </label>
+                            <input
+                                type="text"
+                                value={currentInvoice.accountNumber || ''}
+                                onChange={(e) =>
+                                    updateGlobalField('accountNumber', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                placeholder="Account number"
+                            />
                         </div>
 
-                        <div className="grid grid-cols-12 gap-4 items-start">
-                            <div className="col-span-5">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Field Label
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Account Name"
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Field Label"
-                                />
-                            </div>
-
-                            <div className="col-span-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Value
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Acme Web Solutions, Inc."
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Value"
-                                />
-                            </div>
-
-                            <div className="col-span-1 pt-8">
-                                <button className="text-gray-400 hover:text-red-500 transition">
-                                    <FiX className="text-lg" />
-                                </button>
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Routing Number
+                            </label>
+                            <input
+                                type="text"
+                                value={currentInvoice.routingNumber || ''}
+                                onChange={(e) =>
+                                    updateGlobalField('routingNumber', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                placeholder="Routing number"
+                            />
                         </div>
 
-                        <div className="grid grid-cols-12 gap-4 items-start">
-                            <div className="col-span-5">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Field Label
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Account Name"
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Field Label"
-                                />
-                            </div>
-
-                            <div className="col-span-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Value
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Acme Web Solutions, Inc."
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Value"
-                                />
-                            </div>
-
-                            <div className="col-span-1 pt-8">
-                                <button className="text-gray-400 hover:text-red-500 transition">
-                                    <FiX className="text-lg" />
-                                </button>
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                SWIFT / BIC
+                            </label>
+                            <input
+                                type="text"
+                                value={currentInvoice.swiftCode || ''}
+                                onChange={(e) =>
+                                    updateGlobalField('swiftCode', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                placeholder="SWIFT / BIC"
+                            />
                         </div>
 
                     </div>
-
                 </section>
+
 
                 {/* notes */}
                 <section className="bg-white rounded-lg p-6 mb-6 border border-gray-200">
