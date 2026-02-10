@@ -30,6 +30,11 @@ export interface InvoiceDraft {
     taxAmount:number
     total: number
 
+    accountName: string
+    accountNumber: string
+    routingNumber: string
+    swiftCode: string
+    
     notes?: string
 }
 
@@ -44,35 +49,58 @@ interface InvoiceStore {
     recalculateTotals:() => void
 }
 
-const createEmptyInvoice = (): InvoiceDraft => ({
-    clientName: '',
-    clientEmail: '',
-    invoiceNumber:'',
-    issueDate: new Date().toISOString().split('T')[0],
-    dueDate:new Date().toISOString().split('T')[0],
-    currency: 'USD',
-    logoUrl: '',
+const createEmptyInvoice = (): InvoiceDraft => {
 
-    invoiceTitle: '',
-    fromAddress: '',
-    billToAddress: '',
-    notes: '',
+    const today = new Date()
+    const dueDate = new Date(today)
+    dueDate.setDate(dueDate.getDate() + 30)
     
-    items: [
-        {
-            description: '',
-            quantity: 1,
-            unitPrice: 0,
-            lineTotal:0
-        }
-    ],
-    subtotal: 0,
-    discountRate: 0,
-    taxRate: 0,
-    discountAmount: 0,
-    taxAmount:0,
-    total: 0,
-})
+    return {
+        clientName: '',
+        clientEmail: '',
+        invoiceNumber: 'INV-2026-002',
+        issueDate: today.toISOString().split('T')[0],
+        dueDate: dueDate.toISOString().split('T')[0],
+        currency: '',
+        logoUrl: '',
+
+        invoiceTitle: '',
+        
+        fromAddress: `Acme Web Solutions, Inc.
+        123 Innovation Drive
+        Suite 400
+        San Francisco, CA 94105
+        United States`,    
+        
+        billToAddress: `TechStart Ventures LLC.
+        456 Business Park Avenue
+        Floor 8
+        New York, NY 10013
+        United States`,
+        
+        items: [
+            {
+                description: '',
+                quantity: 1,
+                unitPrice: 0,
+                lineTotal: 0
+            }
+        ],
+        subtotal: 0,
+        discountRate: 0,
+        taxRate: 0,
+        discountAmount: 0,
+        taxAmount: 0,
+        total: 0,
+
+        accountName: 'Acme Web Solutions, Inc.',
+        accountNumber: '1234567890',
+        routingNumber: '0931234219',
+        swiftCode: 'CHASU753',
+
+        notes: 'Thank you for your business. Payment is due within 30 days.',
+    }
+}
 
 
 export const useInvoiceStore = create<InvoiceStore>((set,get) => ({
@@ -128,7 +156,10 @@ export const useInvoiceStore = create<InvoiceStore>((set,get) => ({
                 currentInvoice: { ...state.currentInvoice, [field]: sanitizedValue }
             }
         })
+        if (field === 'discountRate' || field === 'taxRate') {
             get().recalculateTotals()
+        }
+            
     },
 
     recalculateTotals: () => set((state) => {

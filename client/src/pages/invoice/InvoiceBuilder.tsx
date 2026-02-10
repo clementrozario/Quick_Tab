@@ -8,7 +8,8 @@ import { uploadLogo } from "../../lib/api";
 
 
 export const InvoiceBuilder = () => {
-    const { currentInvoice, addItem, updateItem, removeItem,updateGlobalField } = useInvoiceStore()
+    const { currentInvoice, addItem, updateItem, removeItem, updateGlobalField } = useInvoiceStore()
+    
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -217,7 +218,7 @@ export const InvoiceBuilder = () => {
                             <select className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option> $ (USD) - US Dollar</option>
                                 <option> $ (CAD) - Canadian Dollar</option>
-                                <option> ₹ (USD) - US Dollar</option>
+                                <option> ₹ (INR) - Ind Rupee</option>
                             </select>
                         </div>
 
@@ -275,7 +276,8 @@ export const InvoiceBuilder = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    defaultValue="2026-01-01"
+                                    value={currentInvoice.invoiceNumber}
+                                    onChange={(e)=>updateGlobalField('invoiceNumber',e.target.value)}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
@@ -316,8 +318,8 @@ export const InvoiceBuilder = () => {
                                     Value
                                 </label>
                                 <input
-                                    type="text"
-                                    value={currentInvoice.issueDate || '2026-01-01'}
+                                    type="date"
+                                    value={currentInvoice.issueDate}
                                     onChange={(e) => updateGlobalField('issueDate', e.target.value)}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
@@ -359,8 +361,9 @@ export const InvoiceBuilder = () => {
                                     Value
                                 </label>
                                 <input
-                                    type="text"
-                                    defaultValue="2026-01-01"
+                                    type="date"
+                                    value={currentInvoice.dueDate}
+                                    onChange={(e)=>updateGlobalField('dueDate',e.target.value)}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
@@ -385,7 +388,7 @@ export const InvoiceBuilder = () => {
                                 From
                             </label>
                             <textarea
-                                value={currentInvoice.fromAddress || 'Acme Web Solutions, Inc.\n123 Innovation Drive\nSuite 400\nSan Francisco, CA 94105\nUnited States'}
+                                value={currentInvoice.fromAddress}
                                 onChange={(e)=>updateGlobalField('fromAddress',e.target.value)}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30 text-sm"
                                 placeholder="From Address"
@@ -491,7 +494,7 @@ export const InvoiceBuilder = () => {
                                 </div>
                                 {/* total */}
                                 <div className="col-span-2 flex items-center text-sm font-medium w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100">
-                                    ${(item.quantity * item.unitPrice)}
+                                    {(item.quantity * item.unitPrice)}
                                 </div>
                                 {/* Remove */}
                                 <div className="col-span-1">
@@ -614,7 +617,7 @@ export const InvoiceBuilder = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    defaultValue="Account Name"
+                                    value={currentInvoice.accountName}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Field Label"
                                 />
@@ -626,7 +629,7 @@ export const InvoiceBuilder = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    defaultValue="Acme Web Solutions, Inc."
+                                    value={currentInvoice.accountNumber}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Value"
                                 />
@@ -646,7 +649,7 @@ export const InvoiceBuilder = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    defaultValue="Account Name"
+                                    value={currentInvoice.accountName}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Field Label"
                                 />
@@ -658,7 +661,7 @@ export const InvoiceBuilder = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    defaultValue="Acme Web Solutions, Inc."
+                                    value={currentInvoice.accountNumber}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Value"
                                 />
@@ -743,7 +746,7 @@ export const InvoiceBuilder = () => {
                 <section className="bg-white rounded-lg p-6 mb-6 border border-gray-200">
                     <h2 className="font-semibold text-lg mb-6">Notes</h2>
                     <textarea
-                        value={currentInvoice.notes || 'Thank you for your business. Payment is due within 30 days.'}
+                        value={currentInvoice.notes}
                         onChange={(e)=>updateGlobalField('notes',e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30"
                         placeholder="Additional notes or payment terms..."
