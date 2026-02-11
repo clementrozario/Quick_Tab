@@ -7,13 +7,18 @@ export interface InvoiceItem {
     lineTotal: number // quantity * unitprice           
 }
 
+export interface CustomField{
+    id: string
+    label: string
+    type: 'text' | 'date'
+    value:string
+}
+
 export interface InvoiceDraft {
     clientName?: string
     clientEmail?: string
     
-    invoiceNumber:string
-    issueDate: string
-    dueDate: string
+    customFields: CustomField[]
     
     currency: string
     logoUrl?: string
@@ -46,7 +51,10 @@ interface InvoiceStore {
     updateItem: (index: number, updatedItem: Partial<InvoiceItem>) => void
     removeItem: (index: number) => void
     updateGlobalField: (field:'discountRate' | 'taxRate' | keyof Omit<InvoiceDraft,'items' | 'subtotal' | 'discountAmount' | 'taxAmount' | 'total'>,value:any) => void
-    recalculateTotals:() => void
+    recalculateTotals: () => void
+    addCustomField: () => void
+    updateCustomField: (id: string, field: Partial<CustomField>) => void
+    removeCustomField: (id: string) => void
 }
 
 const createEmptyInvoice = (): InvoiceDraft => {
@@ -58,13 +66,31 @@ const createEmptyInvoice = (): InvoiceDraft => {
     return {
         clientName: '',
         clientEmail: '',
-        invoiceNumber: 'INV-2026-002',
-        issueDate: today.toISOString().split('T')[0],
-        dueDate: dueDate.toISOString().split('T')[0],
-        currency: '',
+
+        customFields: [
+            {
+                id: 'field-1',
+                label: 'Invoice Number',
+                type: 'text',
+                value:'INV-997-903'
+            },
+            {
+                id: 'field-2',
+                label: 'Isuue Date',
+                type: 'date',
+                value:today.toISOString().split('T')[0]
+            },
+            {
+                id: 'field-3',
+                label: "Due Date",
+                type: 'date',
+                value:dueDate.toISOString().split('T')[0]
+            }
+        ],
+        currency: '$',
         logoUrl: '',
 
-        invoiceTitle: '',
+        invoiceTitle: 'Invoice',
         
         fromAddress: `Acme Web Solutions, Inc.
         123 Innovation Drive
@@ -131,19 +157,20 @@ export const useInvoiceStore = create<InvoiceStore>((set,get) => ({
                 }
             }
         })
-            get().recalculateTotals()
+        get().recalculateTotals()
     },
 
     removeItem: (index) => {
         set((state) => ({
             currentInvoice: {
                 ...state.currentInvoice,
-                items: state.currentInvoice.items.filter((_, i) => i !== index)
+                items:state.currentInvoice.items.filter((_,i)=>i!==index)
             }
         }))
-            get().recalculateTotals()
+        get().recalculateTotals()
     },
 
+  
     updateGlobalField: (field, value) => {
         set((state) => {
             let sanitizedValue = value
@@ -160,6 +187,43 @@ export const useInvoiceStore = create<InvoiceStore>((set,get) => ({
             get().recalculateTotals()
         }
             
+    },
+
+    addCustomField: () => {
+        set((state) => ({
+            currentInvoice: {
+                ...state.currentInvoice,
+                customFields: [
+                    ...state.currentInvoice.customFields,
+                    {
+                        id: `field-${Date.now()}`,
+                        label: '',
+                        type: 'text',
+                        value:''
+                    }
+                ]
+            }
+        }))
+    },
+
+    updateCustomField: (id, field) => {
+        set((state) => ({
+            currentInvoice: {
+                ...state.currentInvoice,
+                customFields: state.currentInvoice.customFields.map(cf =>
+                    cf.id === id ? { ...cf, ...field } : cf
+                )
+            }
+        }))
+    },
+
+    removeCustomField: (id) => {
+        set((state) => ({
+            currentInvoice: {
+                ...state.currentInvoice,
+                customFields:state.currentInvoice.customFields.filter(cf=>cf.id !== id)
+            }
+        }))
     },
 
     recalculateTotals: () => set((state) => {

@@ -1,15 +1,25 @@
 import { PiInvoiceDuotone } from "react-icons/pi";
 import { FiEye, FiDownload, FiPlus, FiX } from 'react-icons/fi'
-import { useState ,useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 
 import { useInvoiceStore } from "../../store/useInvoiceStore"
 import { uploadLogo } from "../../lib/api";
 
 
+
 export const InvoiceBuilder = () => {
-    const { currentInvoice, addItem, updateItem, removeItem, updateGlobalField } = useInvoiceStore()
-    
+    const {
+        currentInvoice,
+        addItem,
+        updateItem,
+        removeItem,
+        updateGlobalField,
+        addCustomField,
+        updateCustomField,
+        removeCustomField
+    } = useInvoiceStore()
+
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -20,16 +30,16 @@ export const InvoiceBuilder = () => {
             updateGlobalField('logoUrl', data.logoUrl)
             setSelectedFile(null)
             setUploadMessage({ type: 'success', text: 'Logo uploaded successfully' })
-            setTimeout(()=>setUploadMessage(null),3000)
+            setTimeout(() => setUploadMessage(null), 3000)
         },
         onError: (error: Error) => {
             console.error('Upload failed', error.message)
             setUploadMessage({ type: 'error', text: error.message || 'Failed to upload logo' })
-            setTimeout(()=>setUploadMessage(null),3000)
+            setTimeout(() => setUploadMessage(null), 3000)
         }
     })
-    
-    const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
 
         if (file && file?.type?.startsWith('image/')) {
@@ -42,13 +52,13 @@ export const InvoiceBuilder = () => {
     }
 
     const handleRemoveLogo = () => {
-        
+
         if (currentInvoice.logoUrl && currentInvoice.logoUrl.startsWith('blob:')) {
             URL.revokeObjectURL(currentInvoice.logoUrl)
         }
         updateGlobalField('logoUrl', '')
         setSelectedFile(null)
-        
+
         const fileInput = document.getElementById('logo-upload') as HTMLInputElement
         if (fileInput) {
             fileInput.value = ''
@@ -62,10 +72,10 @@ export const InvoiceBuilder = () => {
             }
         }
     }, [currentInvoice.logoUrl])
-    
+
     const handlePreview = () => {
         sessionStorage.setItem('invoicePreview', JSON.stringify(currentInvoice))
-        window.open('/invoice/preview','_blank')
+        window.open('/invoice/preview', '_blank')
     }
 
     return (
@@ -112,7 +122,7 @@ export const InvoiceBuilder = () => {
                         Invoice Generator
                     </h1>
 
-                    <div className="flex flex-col items-baselinez gap-2">
+                    <div className="flex flex-col items-baseline gap-2">
                         <div className="flex gap-3 items-center">
                             <button
                                 onClick={handlePreview}
@@ -120,7 +130,7 @@ export const InvoiceBuilder = () => {
                                 <FiEye />
                                 Preview
                             </button>
-                            
+
                             <button className="flex items-center gap-2 px-2 py-2 border rounded-lg text-sm border-gray-300 hover:bg-gray-100 transition hover:cursor-pointer">
                                 <FiDownload />
                                 Download
@@ -129,7 +139,7 @@ export const InvoiceBuilder = () => {
                                 Remove watermark
                             </button>
                         </div>
-                    
+
                         <div className="text-sm text-gray-600">
                             Including watermark *
                         </div>
@@ -150,7 +160,7 @@ export const InvoiceBuilder = () => {
                             <input
                                 type="text"
                                 value={currentInvoice.invoiceTitle || 'Invoice'}
-                                onChange={(e)=>updateGlobalField('invoiceTitle',e.target.value)}
+                                onChange={(e) => updateGlobalField('invoiceTitle', e.target.value)}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Invoice Title"
                             />
@@ -169,8 +179,8 @@ export const InvoiceBuilder = () => {
                                         }
                                     }}
                                     className={`w-full h-32 border-2 border-dashed rounded-lg flex items-center justify-center overflow-hidden ${currentInvoice.logoUrl ? 'border-gray-300' : 'border-gray-300 cursor-pointer hover:border-blue-400'
-                                        } transition ${uploadMutation.isPending?'opacity-50':""}`}
-                                >   
+                                        } transition ${uploadMutation.isPending ? 'opacity-50' : ""}`}
+                                >
                                     {uploadMutation.isPending ? (
                                         <span className="text-gray-400 text-sm">Uploading ...</span>
                                     ) : currentInvoice.logoUrl ? (
@@ -181,17 +191,17 @@ export const InvoiceBuilder = () => {
                                         />
                                     ) : (
                                         <span className="text-gray-400 text-sm">Upload Logo</span>
-                                    )}                                    
+                                    )}
                                 </div>
 
-                                {currentInvoice.logoUrl && !uploadMutation.isPending &&(
+                                {currentInvoice.logoUrl && !uploadMutation.isPending && (
                                     <button
                                         type="button"
                                         onClick={handleRemoveLogo}
                                         className="absolute top-2 right-2 text-red-500 text-sm font-medium hover:text-red-700"
                                     >
                                         x Remove
-                                    </button>   
+                                    </button>
                                 )}
 
                                 <input
@@ -201,9 +211,9 @@ export const InvoiceBuilder = () => {
                                     onChange={handleFileChange}
                                     className="hidden"
                                 />
-                            </div>         
+                            </div>
                             {uploadMessage && (
-                                <p className={`text-sm mt-2 ${uploadMessage.type==='success' ? 'text-green-600':'text-red-600'}`}>
+                                <p className={`text-sm mt-2 ${uploadMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
                                     {uploadMessage.text}
                                 </p>
                             )}
@@ -215,10 +225,15 @@ export const InvoiceBuilder = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Currency
                             </label>
-                            <select className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option> $ (USD) - US Dollar</option>
-                                <option> $ (CAD) - Canadian Dollar</option>
-                                <option> ₹ (INR) - Ind Rupee</option>
+                            <select
+                                value={currentInvoice.currency}
+                                onChange={(e)=>updateGlobalField('currency',e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="$"> $ (USD) - US Dollar</option>
+                                <option value="C$"> $ (CAD) - Canadian Dollar</option>
+                                <option value="₹"> ₹ (INR) - Ind Rupee</option>
+                                <option value="€">€ (EUR) - Euro</option>
+                                <option value="£">£ (GBP) - British Pound</option>
                             </select>
                         </div>
 
@@ -241,142 +256,66 @@ export const InvoiceBuilder = () => {
                     {/* 1st field */}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="font-semibold text-lg">Custom Fields</h2>
-                        <button className="text-sm text-gray-600 cursor-pointer hover:text-black  flex items-center gap-1">
+                        <button
+                            onClick={addCustomField}
+                            className="text-sm text-gray-600 cursor-pointer hover:text-black  flex items-center gap-1">
                             <FiPlus />Add Field
                         </button>
                     </div>
 
                     <div className="space-y-4">
-                        <div className="grid grid-cols-12 gap-4 items-start">
-                            <div className="col-span-5">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Field Label
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Invoice Number"
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Field label"
-                                />
-                            </div>
+                        {currentInvoice.customFields.map((field) => (
+                            <div key={field.id} className="grid grid-cols-12 gap-4 items-start">
+                                <div className="col-span-5">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Field Label
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={field.label}
+                                        onChange={(e) => updateCustomField(field.id, { label: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Field label"
+                                    />
+                                </div>
 
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Type
-                                </label>
-                                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option>Text</option>
-                                    <option>Date</option>
-                                </select>
-                            </div>
+                                <div className="col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Type
+                                    </label>
+                                    <select
+                                        value={field.type}
+                                        onChange={(e) => updateCustomField(field.id, { type: e.target.value as 'text' | 'date' })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="text">Text</option>
+                                        <option value="date">Date</option>
+                                    </select>
+                                </div>
 
-                            <div className="col-span-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Value
-                                </label>
-                                <input
-                                    type="text"
-                                    value={currentInvoice.invoiceNumber}
-                                    onChange={(e)=>updateGlobalField('invoiceNumber',e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
+                                <div className="col-span-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Value
+                                    </label>
+                                    <input
+                                        type={field.type}
+                                        value={field.value}
+                                        onChange={(e) => updateCustomField(field.id, { value: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
 
-                            <div className="col-span-1 pt-8">
-                                <button className="text-gray-400 hover:text-red-500 transition">
-                                    <FiX className="text-lg" />
-                                </button>
+                                <div className="col-span-1 pt-8">
+                                    <button
+                                        onClick={() => removeCustomField(field.id)}
+                                        className="text-gray-400 hover:text-red-500 transition">
+                                        <FiX className="text-lg" />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-
-                        {/* 2nd field */}
-                        <div className="grid grid-cols-12 gap-4 items-start">
-                            <div className="col-span-5">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Field Label
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Issue Date"
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Field label"
-                                />
-                            </div>
-
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Type
-                                </label>
-                                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option>Text</option>
-                                    <option>Date</option>
-                                </select>
-                            </div>
-
-                            <div className="col-span-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Value
-                                </label>
-                                <input
-                                    type="date"
-                                    value={currentInvoice.issueDate}
-                                    onChange={(e) => updateGlobalField('issueDate', e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            <div className="col-span-1 pt-8">
-                                <button className="text-gray-400 hover:text-red-500 transition">
-                                    <FiX className="text-lg" />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* 3rd field */}
-                        <div className="grid grid-cols-12 gap-4 items-start">
-                            <div className="col-span-5">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Field Label
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Due Date"
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Field label"
-                                />
-                            </div>
-
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Type
-                                </label>
-                                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option>Text</option>
-                                    <option>Date</option>
-                                </select>
-                            </div>
-
-                            <div className="col-span-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Value
-                                </label>
-                                <input
-                                    type="date"
-                                    value={currentInvoice.dueDate}
-                                    onChange={(e)=>updateGlobalField('dueDate',e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            <div className="col-span-1 pt-8">
-                                <button className="text-gray-400 hover:text-red-500 transition">
-                                    <FiX className="text-lg" />
-                                </button>
-                            </div>
-                        </div>
-
+                        ))}
                     </div>
                 </section>
+
 
                 {/* Addresses */}
                 <section className="bg-white rounded-lg p-6 mb-6 border border-gray-200">
@@ -389,7 +328,7 @@ export const InvoiceBuilder = () => {
                             </label>
                             <textarea
                                 value={currentInvoice.fromAddress}
-                                onChange={(e)=>updateGlobalField('fromAddress',e.target.value)}
+                                onChange={(e) => updateGlobalField('fromAddress', e.target.value)}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30 text-sm"
                                 placeholder="From Address"
                             />
@@ -400,8 +339,8 @@ export const InvoiceBuilder = () => {
                                 Bill to
                             </label>
                             <textarea
-                                value={currentInvoice.billToAddress || 'TechStart Ventures LLC.\n456 Business Park Avenue\nFloor 8\nNew York, NY 10013\nUnited States'}
-                                onChange={(e) => updateGlobalField('billToAddress',e.target.value)}
+                                value={currentInvoice.billToAddress}
+                                onChange={(e) => updateGlobalField('billToAddress', e.target.value)}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30 text-sm"
                                 placeholder="Bill to Address"
                             />
@@ -473,7 +412,7 @@ export const InvoiceBuilder = () => {
                                     <input
                                         type="number"
                                         min="0"
-                                        step="1"
+                                        step="0.01"
                                         value={item.unitPrice === 0 ? "" : item.unitPrice}
                                         onChange={(e) => {
                                             const val = e.target.value
@@ -494,7 +433,8 @@ export const InvoiceBuilder = () => {
                                 </div>
                                 {/* total */}
                                 <div className="col-span-2 flex items-center text-sm font-medium w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100">
-                                    {(item.quantity * item.unitPrice)}
+                                    {currentInvoice.currency}
+                                    {item.lineTotal.toFixed(2)}
                                 </div>
                                 {/* Remove */}
                                 <div className="col-span-1">
@@ -528,16 +468,14 @@ export const InvoiceBuilder = () => {
                                 onChange={(e) => {
                                     const val = e.target.value
                                     if (val === "") {
-                                        return updateGlobalField('discountRate',0)
+                                        return updateGlobalField('discountRate', 0)
                                     }
                                     const value = Number(val)
-                                    updateGlobalField('discountRate',value)
-
-                                    updateGlobalField('discountRate',value)
+                                    updateGlobalField('discountRate', value)
                                 }}
                                 onBlur={() => {
-                                    if (currentInvoice.discountRate < 0 || !currentInvoice.discountRate) {
-                                        updateGlobalField('discountRate',0)
+                                    if (currentInvoice.discountRate < 0){ 
+                                        updateGlobalField('discountRate', 0)
                                     }
                                 }}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -553,18 +491,18 @@ export const InvoiceBuilder = () => {
                                 type="number"
                                 min="0"
                                 max="100"
-                                value={currentInvoice.taxRate === 0 ? "" :currentInvoice.taxRate}
+                                value={currentInvoice.taxRate === 0 ? "" : currentInvoice.taxRate}
                                 onChange={(e) => {
                                     const val = e.target.value
                                     if (val === "") {
-                                        return updateGlobalField('taxRate',0)
+                                        return updateGlobalField('taxRate', 0)
                                     }
                                     const value = Number(val)
-                                    updateGlobalField('taxRate',value)
+                                    updateGlobalField('taxRate', value)
                                 }}
                                 onBlur={() => {
                                     if (currentInvoice.taxRate < 0 || !currentInvoice.taxRate) {
-                                        updateGlobalField('taxRate',0)
+                                        updateGlobalField('taxRate', 0)
                                     }
                                 }}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -576,26 +514,26 @@ export const InvoiceBuilder = () => {
                     <div className="pt-2.5 space-y-2">
                         <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Subtotal</span>
-                            <span className="font-medium">${currentInvoice.subtotal.toFixed(2)}</span>
+                            <span className="font-medium">{ currentInvoice.currency}{currentInvoice.subtotal.toFixed(2)}</span>
                         </div>
 
                         {currentInvoice.discountRate > 0 && (
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-600">Discount({currentInvoice.discountRate}%)</span>
-                                <span className="font-medium text-red-600">-${currentInvoice.discountAmount.toFixed(2)}</span>
+                                <span className="font-medium text-red-600">-{currentInvoice.currency}{currentInvoice.discountAmount.toFixed(2)}</span>
                             </div>
                         )}
 
                         {currentInvoice.taxRate > 0 && (
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-600">Tax ({currentInvoice.taxRate}%)</span>
-                                <span className="font-medium text-green-600">+${ currentInvoice.taxAmount.toFixed(2)}</span>
+                                <span className="font-medium text-green-600">+{currentInvoice.currency}{currentInvoice.taxAmount.toFixed(2)}</span>
                             </div>
                         )}
 
                         <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
                             <span>Total</span>
-                            <span>${ currentInvoice.total.toFixed(2)}</span>
+                            <span>{currentInvoice.currency}{currentInvoice.total.toFixed(2)}</span>
                         </div>
                     </div>
                 </section>
@@ -675,13 +613,13 @@ export const InvoiceBuilder = () => {
                     <h2 className="font-semibold text-lg mb-6">Notes</h2>
                     <textarea
                         value={currentInvoice.notes}
-                        onChange={(e)=>updateGlobalField('notes',e.target.value)}
+                        onChange={(e) => updateGlobalField('notes', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-30"
                         placeholder="Additional notes or payment terms..."
                     />
                 </section>
 
-            </main>            
+            </main>
         </div>
     )
 }
