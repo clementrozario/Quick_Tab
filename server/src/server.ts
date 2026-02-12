@@ -5,7 +5,8 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors'
 
 import authRouter from './routes/auth.routes'
-import userRoutes from './routes/user.routes'
+import userRouter from './routes/user.routes'
+import invoiceRouter from './routes/invoice.routes'
 
 
 if (!process.env.JWT_SECRET) {
@@ -28,7 +29,8 @@ const connectDB = async () => {
 }
 
 app.use('/api/auth', authRouter)
-app.use('/api/user', userRoutes)
+app.use('/api/user', userRouter)
+app.use('/api/invoice',invoiceRouter)
     
 const startServer = async () => {
     try {
