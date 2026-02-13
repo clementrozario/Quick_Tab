@@ -1,3 +1,4 @@
+
 export const API_BASE_URL = 'http://localhost:5003/api'
 
 export const apiFetch = async (url:string,options:RequestInit={}) => {
@@ -84,4 +85,16 @@ export const updateProfile = async (data: { businessName?: string; businessAddre
         const errorData = await response.json()
         throw new Error(errorData.message || 'Failed to update profile')
     }
+}
+
+export const saveInvoice = async (invoice: any) => {
+    const response = await apiFetch('/invoice', {
+        method: 'POST',
+        body: JSON.stringify(invoice)
+    })
+    if (!response.ok) {
+        const err = await response.json()
+        throw new Error(err.message || 'Failed to save invoice')
+    }
+    return response.json()
 }
