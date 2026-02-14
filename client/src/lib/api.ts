@@ -94,7 +94,7 @@ export const saveInvoice = async (invoice: any) => {
     })
     if (!response.ok) {
         const err = await response.json()
-        throw new Error(err.message || 'Failed to save invoice')
+        throw new Error(err.message || 'Failed to save invoice')    
     }
     return response.json()
 }

@@ -2,74 +2,74 @@ import { Schema, model, Document, Types } from 'mongoose'
 
 export interface IInvoice extends Document {
     userId: Types.ObjectId
-    title: string
-    invoiceNumber: string
-    issueDate: Date
-    dueDate: Date
+
+    invoiceTitle: string
     currency: string
     logoUrl?: string
+
     fromAddress: string
-    billToAddress: string
-    shippingAddress?: string
+    billToAddress: string   
+    
+    customFields: {
+        label: string
+        type: 'text' | 'date'
+        value: string
+    }[]
+
     items: {
         description: string
         quantity: number
         unitPrice: number
         lineTotal: number
     }[]
+
     subtotal: number
     discountRate: number
     discountAmount: number
     taxRate: number
     taxAmount: number
     total: number
-    customFields: {
-        label: string
-        type: 'text' | 'date'
-        value: string
-    }[]
-    bankInfo: {
-        label: string
-        value: string
-    }[]
+
+    accountName: string
+    accountNumber: string
+    routingNumber: string
+    swiftCode: string
+
     notes?: string
-    createdAt: Date
+
+    createdAt: Date 
     updatedAt: Date
 }
 
 const invoiceSchema = new Schema<IInvoice>({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    title: { type: String, default: 'Invoice' },
-    invoiceNumber: { type: String, required: true },
-    issueDate: { type: Date },
-    dueDate: { type: Date },
-    currency: { type: String, default: 'USD' },
-    logoUrl: String,
+    invoiceTitle: { type: String, default: 'Invoice' },
+    currency: { type: String, default: '$' },
+    logoUrl: { type: String },
     fromAddress: { type: String, required: true },
     billToAddress: { type: String, required: true },
-    shippingAddress: String,
+    customFields: [{
+        label: String,
+        type: { type: String, enum: ['text', 'date'] },
+        value: String
+    }],
     items: [{
         description: String,
         quantity: Number,
         unitPrice: Number,
         lineTotal: Number
     }],
-    subtotal: Number,
-    discountRate: Number,
-    discountAmount: Number,
-    taxRate: Number,
-    taxAmount: Number,
-    total: Number,
-    customFields: [{
-        label: String,
-        type: { type: String, enum: ['text', 'date'] },
-        value: String
-    }],
-    bankInfo: [{
-        label: String,
-        value: String
-    }],
-    notes: String
+    subtotal: { type: Number, default: 0 },
+    discountRate: { type: Number, default: 0 },
+    discountAmount: { type: Number, default: 0 },
+    taxRate: { type: Number, default: 0 },
+    taxAmount: { type: Number, default: 0 },
+    total: { type: Number, default: 0 },
+    accountName: { type: String, default: '' },
+    accountNumber: { type: String, default: '' },
+    routingNumber: { type: String, default: '' },
+    swiftCode: { type: String, default: '' },
+    notes: { type: String }
 }, { timestamps: true })
 
 export const Invoice = model<IInvoice>('Invoice', invoiceSchema)

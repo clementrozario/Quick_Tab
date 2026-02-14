@@ -1,10 +1,10 @@
 import { PiInvoiceDuotone } from "react-icons/pi";
 import { FiEye, FiDownload, FiPlus, FiX } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation ,useQueryClient } from '@tanstack/react-query'
 
 import { useInvoiceStore } from "../../store/useInvoiceStore"
-import { uploadLogo } from "../../lib/api";
+import { uploadLogo,saveInvoice} from "../../lib/api";
 
 
 
@@ -38,6 +38,23 @@ export const InvoiceBuilder = () => {
             setTimeout(() => setUploadMessage(null), 3000)
         }
     })
+
+    const queryClient = useQueryClient()
+
+    const saveMutation = useMutation({
+        mutationFn: saveInvoice,
+        onSuccess: (saved) => {
+            alert('Invoice saved! ID: ' + saved._id)
+            queryClient.invalidateQueries({ queryKey:['invoices']})
+        },
+        onError: (err: Error) => {
+            alert('Save Failed '+ err.message)
+        }
+    })
+
+    const handleSave = () => {
+        saveMutation.mutate(currentInvoice)
+    }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -94,7 +111,11 @@ export const InvoiceBuilder = () => {
                 <div className="border-b border-gray-200 mt-4">
                     <div className="flex px-4 pb-4 items-center justify-between gap-4">
                         <h3 className="font-bold text-base">Templates</h3>
-                        <button className="text-sm font-normal text-gray-600 cursor-pointer hover:text-black hover:bg-gray-100 transition-colors">
+                        <button
+                            onClick={handleSave}
+                            disabled={saveMutation.isPending}
+                            className="text-sm font-normal text-gray-600 cursor-pointer hover:text-black hover:bg-gray-100 transition-colors"
+                        >
                             Save Current
                         </button>
                     </div>

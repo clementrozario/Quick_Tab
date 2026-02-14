@@ -12,36 +12,10 @@ export const createInvoice = async (req: AuthRequest, res: Response) => {
         if (!userId) {
             return res.status(401).json({ message: 'user not found' })
         }
-        
-        const {
-            title,
-            invoiceNumber,
-            dates,
-            currency,
-            logoUrl,
-            fromAddress,
-            billToAddress,
-            items,
-            totals,
-            customFields,
-            bankInfo,
-            notes
-        } = req.body;
 
         const newInvoice = new Invoice({
             userId,
-            title,
-            invoiceNumber,
-            dates,
-            currency,
-            logoUrl,
-            fromAddress,
-            billToAddress, 
-            items,
-            totals,
-            customFields,
-            bankInfo,
-            notes
+            ...req.body
         })
 
         const savedInvoice = await newInvoice.save()
